@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class UserHandler {
+public class UserService {
 
 	@Autowired
 	private UserRepository userRepository;
