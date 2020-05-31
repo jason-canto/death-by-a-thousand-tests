@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
 import canto.jason.user.User;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @DataMongoTest
+@DataJpaTest
 public class UserEntityTest {
 
 	@Autowired
@@ -20,7 +22,7 @@ public class UserEntityTest {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Test
 	public void create() throws Exception {
 		User simplePojo = new User("1", "firstUser");
@@ -63,4 +65,6 @@ public class UserEntityTest {
 			.expectNextCount(1)
 			.verifyComplete();
 	}
+
+	
 }
