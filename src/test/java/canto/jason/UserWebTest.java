@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import canto.jason.user.User;
@@ -14,7 +15,7 @@ import canto.jason.user.UserRepository;
 import reactor.core.publisher.Flux;
 
 @WebFluxTest(UserConfig.class)
-//@WithMockUser(username="admin",roles={"USER","ADMIN"})
+@WithMockUser(username="admin",roles={"USER","ADMIN"})
 public class UserWebTest {
 
 	@Autowired
@@ -39,5 +40,14 @@ public class UserWebTest {
 				.jsonPath("@.[0].id").isEqualTo("1")
 				.jsonPath("@.[1].name").isEqualTo("secondUser")
 				.jsonPath("@.[1].id").isEqualTo("2");
+	}
+
+	@Test
+	public void getNonExistentUser() throws Exception {
+		this.client
+			.get()
+			.uri("/users/test")
+			.exchange()
+			.expectStatus().isNotFound();
 	}
 }

@@ -8,7 +8,6 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,11 +20,6 @@ public class UserConfig {
 
 	@Autowired
 	private UserService service;
-
-	@Bean
-	RouterFunction<ServerResponse> routes2(UserRepository repository) {
-		return route().GET("/users", request -> ok().body(repository.findAll(), User.class)).build();
-	}
 
 	@Bean
 	RouterFunction<ServerResponse> routes() {
