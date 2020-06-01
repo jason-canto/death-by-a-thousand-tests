@@ -15,28 +15,39 @@ import reactor.core.publisher.Mono;
 public class UserService {
 
 	@Autowired
-	private UserRepository userRepository;
+	private UserRepository repository;
 
 	public Mono<ServerResponse> findAll(ServerRequest request) {
-		Flux<User> result = userRepository.findAll();
+		Flux<User> result = repository.findAll();
 		return ok().contentType(APPLICATION_JSON).body(result, User.class);
 	}
 
 	public Mono<ServerResponse> findById(ServerRequest request) {
 		String id = request.pathVariable("id");
-		Mono<User> result = userRepository.findById(id);
+		Mono<User> result = repository.findById(id);
 		return ok().contentType(APPLICATION_JSON).body(result, User.class);
 	}
 
 	public Mono<ServerResponse> create(ServerRequest request) {
 		Mono<User> userMono = request.bodyToMono(User.class);
-		Mono<User> result = userMono.flatMap(user -> userRepository.save(user));
+		Mono<User> result = userMono.flatMap(user -> repository.save(user));
+		return ok().contentType(APPLICATION_JSON).body(result, User.class);
+	}
+
+	public Mono<ServerResponse> update(ServerRequest request) {
+		String id = request.pathVariable("id");
+		Mono<User> result = request.bodyToMono(User.class)
+				.map(user -> {
+					user.setId(id);
+					return user;
+				})
+				.flatMap(user -> repository.save(user));
 		return ok().contentType(APPLICATION_JSON).body(result, User.class);
 	}
 
 	public Mono<ServerResponse> delete(ServerRequest request) {
 		String id = request.pathVariable("id");
-		Mono<Void> result = userRepository.deleteById(id);
+		Mono<Void> result = repository.deleteById(id);
 		return ok().contentType(APPLICATION_JSON).build(result);
 	}
 
