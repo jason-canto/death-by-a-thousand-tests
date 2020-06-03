@@ -31,14 +31,11 @@ public class UserConfig {
 						service::update)
 				.andRoute(DELETE("/users/{id}").and(accept(APPLICATION_JSON)), service::delete);
 
-		/* Alternative route without handler function
-		.andRoute(POST("/users")
-			.and(accept(APPLICATION_JSON))
-			.and(contentType(APPLICATION_JSON)),
-				req -> req.bodyToMono(User.class)
-			.doOnNext(repository::save)
-			.then(ok().build()));
-		*/
+		/*
+		 * Alternative route without handler function .andRoute(POST("/users")
+		 * .and(accept(APPLICATION_JSON)) .and(contentType(APPLICATION_JSON)), req ->
+		 * req.bodyToMono(User.class) .doOnNext(repository::save) .then(ok().build()));
+		 */
 	}
 
 }

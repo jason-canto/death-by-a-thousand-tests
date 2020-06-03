@@ -1,6 +1,7 @@
 package canto.jason;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
@@ -21,6 +22,13 @@ public class UserEntityTest {
 	@Autowired
 	private UserRepository userRepository;
 
+	@BeforeEach
+	public void before() throws Exception {
+		StepVerifier
+			.create(this.userRepository.deleteAll())
+			.verifyComplete();
+	}
+
 	@Test
 	public void create() throws Exception {
 		User simplePojo = new User("1", "firstUser");
@@ -38,11 +46,9 @@ public class UserEntityTest {
 
 	@Test
 	public void query() throws Exception {
-		Flux<User> userFlux = userRepository
-				.deleteAll()
-				.thenMany(Flux.just("User1", "User2")
-						.map(name -> new User(null, name))
-						.flatMap(user -> userRepository.save(user)))
+		Flux<User> userFlux = Flux.just("User1", "User2")
+				.map(name -> new User(null, name))
+				.flatMap(user -> userRepository.save(user))
 				.thenMany(userRepository.findAll());
 
 		StepVerifier.create(userFlux)
@@ -52,11 +58,9 @@ public class UserEntityTest {
 
 	@Test
 	public void customQuery() throws Exception {
-		Flux<User> userFlux = userRepository
-				.deleteAll()
-				.thenMany(Flux.just("User1", "User2")
-						.map(name -> new User(null, name))
-						.flatMap(user -> userRepository.save(user)))
+		Flux<User> userFlux = Flux.just("User1", "User2")
+				.map(name -> new User(null, name))
+				.flatMap(user -> userRepository.save(user))
 				.thenMany(userRepository.findByName("User1"));
 
 		StepVerifier.create(userFlux)

@@ -15,6 +15,7 @@ import canto.jason.user.UserConfig;
 import canto.jason.user.UserRepository;
 import canto.jason.user.UserService;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @WebFluxTest(UserConfig.class)
 @Import(UserService.class)
@@ -30,7 +31,7 @@ public class UserWebTest {
 	@Test
 	public void getAllUsers() throws Exception {
 		Mockito.when(repository.findAll())
-				.thenReturn(Flux.just(new User("1", "firstUser"), new User("2", "secondUser")));
+			.thenReturn(Flux.just(new User("1", "firstUser"), new User("2", "secondUser")));
 
 		this.client
 			.get()
@@ -46,10 +47,13 @@ public class UserWebTest {
 	}
 
 	@Test
-	public void getNonExistentUser() throws Exception {
+	public void getNonExistentRoute() throws Exception {
+		Mockito.when(repository.findById(Mockito.anyString()))
+			.thenReturn(Mono.empty());
+
 		this.client
 			.get()
-			.uri("/users/{id}", "Test")
+			.uri("/testWrongRoute")
 			.exchange()
 			.expectStatus().isNotFound();
 	}
