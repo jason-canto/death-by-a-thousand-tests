@@ -1,5 +1,7 @@
 package canto.jason;
 
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,7 @@ public class UserWebTest {
 	private UserRepository repository;
 
 	@Test
-	public void getAllUsers() throws Exception {
+	public void whenAllUsersThenOk() throws Exception {
 		Mockito.when(repository.findAll())
 			.thenReturn(Flux.just(new User("1", "firstUser"), new User("2", "secondUser")));
 
@@ -47,7 +49,20 @@ public class UserWebTest {
 	}
 
 	@Test
-	public void getNonExistentRoute() throws Exception {
+	public void whenPostNewUserThenReturnOk() throws Exception {
+		this.client
+			.mutateWith(csrf())
+			.post()
+			.uri("/users")
+			.body(Mono.just(new User("1", "test")), User.class)
+			.exchange()
+			.expectStatus().isOk();
+
+		Mockito.verify(repository).save(Mockito.any(User.class));
+	}
+
+	@Test
+	public void whenNonExistentRouteThenNotFound() throws Exception {
 		Mockito.when(repository.findById(Mockito.anyString()))
 			.thenReturn(Mono.empty());
 
