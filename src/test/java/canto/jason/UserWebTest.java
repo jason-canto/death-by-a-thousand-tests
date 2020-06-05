@@ -54,7 +54,9 @@ public class UserWebTest {
 			.mutateWith(csrf())
 			.post()
 			.uri("/users")
-			.body(Mono.just(new User("1", "test")), User.class)
+			.contentType(MediaType.APPLICATION_JSON)
+			.body(Mono.just(new User(null, "test")), User.class)
+			.accept(MediaType.APPLICATION_JSON)
 			.exchange()
 			.expectStatus().isOk();
 
