@@ -1,7 +1,8 @@
 package canto.jason;
 
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+//import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+//import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import canto.jason.user.User;
@@ -21,7 +22,7 @@ import reactor.core.publisher.Mono;
 
 @WebFluxTest(UserConfig.class)
 @Import(UserService.class)
-@WithMockUser(username="admin",roles={"USER","ADMIN"})
+//@WithMockUser(username="admin",roles={"USER","ADMIN"})
 public class UserWebTest {
 
 	@Autowired
@@ -50,17 +51,34 @@ public class UserWebTest {
 
 	@Test
 	public void whenPostNewUserThenReturnOk() throws Exception {
+		var user = new User(null, "test");
 		this.client
-			.mutateWith(csrf())
+			//.mutateWith(csrf())
 			.post()
-			.uri("/users")
+			.uri("/test")
 			.contentType(MediaType.APPLICATION_JSON)
-			.body(Mono.just(new User(null, "test")), User.class)
+			.body(Mono.just(user), User.class)
 			.accept(MediaType.APPLICATION_JSON)
 			.exchange()
-			.expectStatus().isOk();
+			.expectStatus().isOk()
+			.expectHeader().contentType(MediaType.APPLICATION_JSON);
 
-		Mockito.verify(repository).save(Mockito.any(User.class));
+		//Mockito.verify(repository).save(Mockito.any());
+	}
+
+	@Test
+	public void whenSingleUserThenReturnOk() throws Exception {
+
+		Mockito.when(repository.findById(Mockito.anyString()))
+			.thenReturn(Mono.just(new User("1", "firstUser")));
+
+		this.client
+			.get()
+			.uri("/users/{id}", "1")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(response -> Assertions.assertThat(response.getResponseBody()).isNotNull());
 	}
 
 	@Test
