@@ -37,17 +37,35 @@ public class UserConfig {
 	}
 
 	@Bean
-	RouterFunction<ServerResponse> addUser() {
-		return route(POST("/test")
-			.and(accept(APPLICATION_JSON))
-			.and(contentType(APPLICATION_JSON)), req -> req.bodyToMono(User.class)
-			.doOnNext(repository::save)
-			.transform(response -> ServerResponse.ok().contentType(APPLICATION_JSON).body(response, User.class)));
+	RouterFunction<ServerResponse> findUsers(UserRepository repository) {
+		return route().GET("/users", request -> ok().body(repository.findAll(), User.class)).build();
 	}
 
 	@Bean
-	RouterFunction<ServerResponse> findUsers(UserRepository repository) {
-		return route().GET("/users", request -> ok().body(repository.findAll(), User.class)).build();
+	RouterFunction<ServerResponse> findUserById() {
+		return route(GET("/users/{id}"), req -> ok().body(repository.findById(req.pathVariable("id")), User.class));
+	}
+
+	@Bean
+	RouterFunction<ServerResponse> createUser() {
+		return route(POST("/users")
+				.and(accept(APPLICATION_JSON))
+				.and(contentType(APPLICATION_JSON)), req -> req.bodyToMono(User.class)
+				.doOnNext(repository::save)
+				.as(response -> ok().contentType(APPLICATION_JSON).body(response, User.class)));
+	}
+
+	@Bean
+	RouterFunction<ServerResponse> updateUser() {
+		return route(PUT("/users")
+				.and(accept(APPLICATION_JSON))
+				.and(contentType(APPLICATION_JSON)), req -> req.bodyToMono(User.class)
+				.map(user -> {
+					user.setId(req.pathVariable("id"));
+					return user;
+				})
+				.doOnNext(repository::save)
+				.as(response -> ok().contentType(APPLICATION_JSON).body(response, User.class)));
 	}
 
 }
